@@ -3,18 +3,11 @@
 // @deno-types="./asset-url.d.ts"
 import tileUrl from "./assets/tile.svg?no-inline";
 
-const app = document.querySelector<HTMLElement>("#app")!;
-
 const heading = document.createElement("h1");
 heading.textContent = "D1 project";
 
-const image = document.createElement("img");
-image.src = tileUrl;
-image.alt = "A teal tile with a cream circle";
-image.width = 96;
-image.height = 96;
+const button = document.getElementById("mainButton");
 
-const message = document.createElement("p");
-message.textContent = "Your project starts here.";
-
-app.append(heading, image, message);
+button?.addEventListener("click", () => {
+  console.log("Button clicked!");
+});

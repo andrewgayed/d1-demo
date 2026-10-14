@@ -4,9 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>D1 project</title>
+    <style>
+    #mainButton {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    #mainButton:active {
+      transform: scale(0.95);
+    }
+    </style>
   </head>
   <body>
     <main id="app"></main>
     <script type="module" src="/src/main.ts"></script>
+    <button id="mainButton">
+      <img src="/src/assets/tile.svg" alt="tile" width="96" height="96" />
+    </button>
   </body>
 </html>
