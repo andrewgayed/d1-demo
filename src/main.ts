@@ -215,6 +215,7 @@ function displayNumbers(
   groupName: string, // the initial Y coordinate for the digits
 ) {
   document.querySelectorAll(`.${groupName}`).forEach((el) => el.remove());
+
   // parse the score into individual digits and display each digit as an image
   const strNum: string = num.toString();
 
@@ -269,6 +270,7 @@ function frame(timestamp: number) {
     "clicker-cost-digit",
   );
 
+  // Display worker level and upgrade cost
   displayNumbers(worker1Lvl, 10, 36, 250, "worker-level-digit");
 
   displayNumbers(
