@@ -149,6 +149,32 @@ function updateUpgradeShop(): void {
 
 updateUpgradeShop();
 
+const statsPanel = document.createElement("section");
+statsPanel.className = "stats-panel";
+
+const statsTitle = document.createElement("h2");
+statsTitle.textContent = "GAME STATS";
+statsPanel.appendChild(statsTitle);
+
+const statsInfo = document.createElement("div");
+statsPanel.appendChild(statsInfo);
+
+document.body.appendChild(statsPanel);
+
+function updateStats(): void {
+  const factory = newUpgrades.find(
+    (upgrade) => upgrade.name === "Power Factory",
+  );
+
+  statsInfo.textContent = `Points Per Click: ${clickpower}\n` +
+    `Points Per Second: ${growthRate}\n` +
+    `Clicker Level: ${clickerLvl}\n` +
+    `Workers Owned: ${worker1Lvl}\n` +
+    `Factories Owned: ${factory?.owned ?? 0}`;
+}
+
+updateStats();
+
 // intialize an array to hold the image URLs for the numbers 0-9
 const numImgCol: string[] = [];
 for (let i = 0; i < 10; i++) {
@@ -258,6 +284,7 @@ function frame(timestamp: number) {
   lastUpdateTime = timestamp;
   displayScoreNumbers();
   updateUpgradeShop();
+  updateStats();
 
   // display the level
   displayNumbers(clickerLvl, 10, 36, 150, "clicker-level-digit");
