@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>D1 project</title>
     <style>
-    #mainButton {
+    .tile-button {
       border: none;
       background: transparent;
       cursor: pointer;
@@ -13,23 +13,31 @@
       align-items: center;
     }
 
-    #mainButton:active {
+    .tile-button:active {
       transform: scale(0.95);
+    }
+
+    #upgradeClicker {
+      position: absolute;
+      left: 120px;
+      top: 120px;
     }
 
     body {
       background-color: #000000;
       color: white;
     }
-
-    
     </style>
   </head>
   <body>
     <main id="app"></main>
     <script type="module" src="/src/main.ts"></script>
-    <button id="mainButton">
+    <button id="mainButton" class="tile-button">
       <img src="/src/assets/tile.svg" alt="tile" width="96" height="96" />
+    </button>
+    <button id="upgradeClicker" class="tile-button">
+      <img src="/images/upgrade1.png" alt="upgrade clicker" width="182"
+        height="96" />
     </button>
   </body>
 </html>
