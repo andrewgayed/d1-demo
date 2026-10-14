@@ -28,6 +28,15 @@ button?.addEventListener("click", () => {
   displayScoreNumbers();
 });
 
+//change the brightness of the mainbutton to 0.75 when hovered over, and reset it to 1 when the mouse moves away
+button?.addEventListener("mouseover", () => {
+  button.style = "filter: brightness(0.75)";
+});
+button?.addEventListener("mouseleave", () => {
+  button.style = "filter: brightness(1)";
+});
+
+
 // create an upgrade button
 const upgradeButton = document.getElementById("upgradeClicker");
 upgradeButton?.addEventListener("click", () => {
