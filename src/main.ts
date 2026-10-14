@@ -58,6 +58,97 @@ purchaseWorkerButton?.addEventListener("click", () => {
   }
 });
 
+type NewUpgrade = {
+  name: string;
+  icon: string;
+  description: string;
+  baseCost: number;
+  growthAmount: number;
+  owned: number;
+  button?: HTMLButtonElement;
+};
+
+const newUpgrades: NewUpgrade[] = [
+  {
+    name: "Auto Generator",
+    icon: "⚡",
+    description: "+1 point per second",
+    baseCost: 20,
+    growthAmount: 1,
+    owned: 0,
+  },
+  {
+    name: "Power Factory",
+    icon: "🏭",
+    description: "+5 points per second",
+    baseCost: 100,
+    growthAmount: 5,
+    owned: 0,
+  },
+];
+
+function getNewUpgradeCost(upgrade: NewUpgrade): number {
+  return Math.ceil(upgrade.baseCost * Math.pow(1.5, upgrade.owned));
+}
+
+function buyNewUpgrade(upgrade: NewUpgrade): void {
+  const cost = getNewUpgradeCost(upgrade);
+
+  if (score < cost) {
+    return;
+  }
+
+  incrementCounter(-cost);
+  incrementGrowthRate(upgrade.growthAmount);
+  upgrade.owned++;
+
+  updateUpgradeShop();
+  displayScoreNumbers();
+}
+
+const upgradeShop = document.createElement("section");
+upgradeShop.className = "upgrade-shop";
+
+const shopTitle = document.createElement("h2");
+shopTitle.textContent = "Upgrade Shop";
+upgradeShop.appendChild(shopTitle);
+
+const productionInfo = document.createElement("p");
+upgradeShop.appendChild(productionInfo);
+
+for (const upgrade of newUpgrades) {
+  const upgradeButton = document.createElement("button");
+  upgradeButton.className = "shop-button";
+  upgradeButton.addEventListener("click", () => {
+    buyNewUpgrade(upgrade);
+  });
+
+  upgrade.button = upgradeButton;
+  upgradeShop.appendChild(upgradeButton);
+}
+
+document.body.appendChild(upgradeShop);
+
+function updateUpgradeShop(): void {
+  productionInfo.textContent = `Production: ${growthRate} points/sec`;
+
+  for (const upgrade of newUpgrades) {
+    if (!upgrade.button) {
+      continue;
+    }
+
+    const cost = getNewUpgradeCost(upgrade);
+    const affordable = score >= cost;
+
+    upgrade.button.disabled = !affordable;
+    upgrade.button.textContent =
+      `${upgrade.icon} ${upgrade.name} | Cost: ${cost} | ` +
+      `Owned: ${upgrade.owned} | ${upgrade.description}`;
+  }
+}
+
+updateUpgradeShop();
+
 // intialize an array to hold the image URLs for the numbers 0-9
 const numImgCol: string[] = [];
 for (let i = 0; i < 10; i++) {
@@ -120,8 +211,10 @@ function displayNumbers(
   num: number, // the number to display
   initX: number, // the initial X coordinate for the first digit
   gapX: number, // the horizontal gap between digits
-  initY: number, // the initial Y coordinate for the digits
+  initY: number,
+  groupName: string, // the initial Y coordinate for the digits
 ) {
+  document.querySelectorAll(`.${groupName}`).forEach((el) => el.remove());
   // parse the score into individual digits and display each digit as an image
   const strNum: string = num.toString();
 
@@ -133,7 +226,7 @@ function displayNumbers(
     const img = document.createElement("img");
     img.src = numImgCol[digitNum];
     img.alt = `Digit ${digitChar}`;
-    img.className = "score-digit";
+    img.className = groupName;
     img.style.filter = "invert(1)";
 
     img.style.position = "absolute";
@@ -163,14 +256,28 @@ function frame(timestamp: number) {
 
   lastUpdateTime = timestamp;
   displayScoreNumbers();
+  updateUpgradeShop();
 
   // display the level
-  displayNumbers(clickerLvl, 10, 36, 150);
-  // display the upgrade cost for the next level
-  displayNumbers(Math.pow(4, clickerLvl), 320, 36, 150);
+  displayNumbers(clickerLvl, 10, 36, 150, "clicker-level-digit");
 
-  displayNumbers(worker1Lvl, 10, 36, 250);
-  displayNumbers(Math.ceil(10 * Math.pow(1.2, worker1Lvl)), 320, 36, 250);
+  displayNumbers(
+    Math.pow(4, clickerLvl),
+    320,
+    36,
+    150,
+    "clicker-cost-digit",
+  );
+
+  displayNumbers(worker1Lvl, 10, 36, 250, "worker-level-digit");
+
+  displayNumbers(
+    Math.ceil(10 * Math.pow(1.2, worker1Lvl)),
+    320,
+    36,
+    250,
+    "worker-cost-digit",
+  );
 
   requestAnimationFrame(frame);
 }
