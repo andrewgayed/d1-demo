@@ -186,7 +186,7 @@ function displayDynamicInfo() {
   );
 }
 
-// display worker growth increase, level and upgrade cost 
+// display worker growth increase, level and upgrade cost
 function displayWorkerInfo() {
   for (let i = 0; i < 5; i++) {
     displayNumbers(
