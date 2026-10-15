@@ -2,8 +2,6 @@
 // even this tiny example demonstrates a separately deployed asset.
 // @deno-types="./asset-url.d.ts"
 
-// import tileUrl from "./assets/tile.svg?no-inline"; <---- commented out to satisfy the linter, since this is not used in the code
-
 const heading = document.createElement("h1");
 heading.textContent = "D1 project";
 
@@ -27,7 +25,7 @@ const button = document.getElementById("mainButton");
 button?.addEventListener("click", () => {
   console.log("Button clicked!");
   incrementCounter(clickpower);
-  displayNumbers(score, intX + 90, spacingX, 60, "score-digit", displayedScore);
+  displayDynamicInfo();
 });
 
 //change the brightness of the mainbutton to 0.75 when hovered over, and reset it to 1 when the mouse moves away
@@ -38,33 +36,15 @@ button?.addEventListener("mouseleave", () => {
   button.style = "filter: brightness(1)";
 });
 
-
 // create an upgrade button
 const upgradeButton = document.getElementById("upgradeClicker");
 upgradeButton?.addEventListener("click", () => {
   const upgradeCost = Math.ceil(Math.pow(4, clickpower)); // cost increases with each level
   if (score >= upgradeCost) {
     console.log("Upgrade button clicked!");
-    console.log(`Upgrade cost: ${upgradeCost}`);
-    console.log(`Current score: ${clickpower}`);
     incrementClickPower(1); // increase click power by 1
     incrementCounter(-upgradeCost); // deduct the cost from the score
-    displayNumbers(
-      score,
-      intX,
-      spacingX,
-      60,
-      "score-digit",
-      displayedScore,
-    );
-    displayNumbers(
-      growthRate,
-      intX,
-      spacingX,
-      750,
-      "revS-digit",
-      displayedrevS,
-    );
+    displayDynamicInfo();
   } else {
     console.log("Not enough score to upgrade!");
   }
@@ -82,24 +62,9 @@ for (let i = 0; i < 5; i++) {
       console.log("Upgrade button clicked!");
       incrementGrowthRate(workerGrowthRates[i]); // increase growth rate by the worker's base growth rate
       incrementCounter(-upgradeCost); // deduct the cost from the score
-      displayNumbers(
-        score,
-        intX + 90,
-        spacingX,
-        60,
-        "score-digit",
-        displayedScore,
-      );
-      displayNumbers(
-        growthRate,
-        intX + 90,
-        spacingX,
-        750,
-        "revS-digit",
-        displayedrevS,
-      );
+      displayDynamicInfo();
       incrementWorkerLevel(i); // increase the clicker level
-      displayWorkerInfo();
+      displayWorkerInfo(); // update the display of the worker info
     } else {
       console.log("Not enough score to upgrade!");
     }
@@ -108,10 +73,26 @@ for (let i = 0; i < 5; i++) {
 
 // array to hold the image URLs for the numbers 0-9
 const numImgCol: string[] = [];
-
 for (let i = 0; i < 10; i++) {
   numImgCol.push(`/images/button${i}.png`);
 }
+
+// create the plus signs for the growth rate display
+for (let i = 0; i < 5; i++) {
+  const plusImg = document.createElement("img");
+  plusImg.src = `/images/plus.png`;
+  plusImg.alt = "Plus";
+  plusImg.className = `plus${i + 1}`;
+  // plusImg.style.filter = "invert(1)";
+  plusImg.style.position = "absolute";
+  plusImg.style.left = `${intX - 235}px`; // right of the cost
+  plusImg.style.top = `${250 + (i * 100)}px`;
+  plusImg.style.width = "40px";
+  document.body.appendChild(plusImg);
+}
+
+// start the animation loop
+requestAnimationFrame(frame);
 
 // increment the counter
 function incrementCounter(increment: number) {
@@ -144,16 +125,12 @@ function displayNumbers(
 ) {
   if (displayedNum !== undefined) {
     const whole = Math.floor(num);
-
     // if the score has not changed since the last display do nothing
     if (whole === displayedNum) {
       return;
     }
-
-    displayedNum = whole;
   }
   document.querySelectorAll(`.${groupName}`).forEach((el) => el.remove());
-
   // parse the score into individual digits and display each digit as an image
   const strNum: string = num.toString();
 
@@ -177,53 +154,7 @@ function displayNumbers(
   }
 }
 
-for (let i = 0; i < 5; i++) {
-  const plusImg = document.createElement("img");
-  plusImg.src = `/images/plus.png`;
-  plusImg.alt = "Plus";
-  plusImg.className = `plus${i + 1}`;
-  // plusImg.style.filter = "invert(1)";
-  plusImg.style.position = "absolute";
-  plusImg.style.left = `${intX - 235}px`; // right of the cost
-  plusImg.style.top = `${250 + (i * 100)}px`;
-  plusImg.style.width = "40px";
-  document.body.appendChild(plusImg);
-}
-
-// increases the score by a specified amount at regular intervals
-
-const tickLength = 1;
-let tickTimer = 0;
-
-function frame(timestamp: number) {
-  if (lastUpdateTime !== null) {
-    const dt = Math.min((timestamp - lastUpdateTime) / 1000, 1 / 15); // limit dt to 1/15th of a second
-
-    tickTimer += dt;
-    while (tickTimer >= tickLength) {
-      incrementCounter(growthRate); // the whole amount, once per tick
-      tickTimer -= tickLength;
-    }
-  }
-
-  lastUpdateTime = timestamp;
-
-  displayNumbers(score, intX, spacingX, 60, "score-digit", displayedScore);
-  displayNumbers(
-    growthRate,
-    intX,
-    spacingX,
-    750,
-    "revS-digit",
-    displayedrevS,
-  );
-
-  displayWorkerInfo();
-  displayClickerPowerAndCost();
-
-  requestAnimationFrame(frame);
-}
-
+// display current click power and upgrade code
 function displayClickerPowerAndCost() {
   displayNumbers(
     clickpower,
@@ -232,7 +163,6 @@ function displayClickerPowerAndCost() {
     150,
     "clicker-power-digit",
   );
-
   const upgradeCost = Math.ceil(Math.pow(4, clickpower));
   displayNumbers(
     upgradeCost,
@@ -243,6 +173,20 @@ function displayClickerPowerAndCost() {
   );
 }
 
+// display revenue and revenue/s
+function displayDynamicInfo() {
+  displayNumbers(score, intX, spacingX, 60, "score-digit", displayedScore);
+  displayNumbers(
+    growthRate,
+    intX,
+    spacingX,
+    750,
+    "revS-digit",
+    displayedrevS,
+  );
+}
+
+// display worker growth increase, level and upgrade cost 
 function displayWorkerInfo() {
   for (let i = 0; i < 5; i++) {
     displayNumbers(
@@ -252,7 +196,6 @@ function displayWorkerInfo() {
       250 + i * 100,
       `worker${i + 1}-level-digit`,
     );
-
     displayNumbers(
       Math.ceil(workerBaseCosts[i] * Math.pow(1.2, workerLevels[i])),
       intX + 260,
@@ -260,7 +203,6 @@ function displayWorkerInfo() {
       250 + i * 100,
       `worker${i + 1}-cost-digit`,
     );
-
     displayNumbers(
       workerGrowthRates[i],
       intX - 200,
@@ -271,14 +213,24 @@ function displayWorkerInfo() {
   }
 }
 
-displayNumbers(score, intX, spacingX, 60, "score-digit", displayedScore);
-displayNumbers(
-  growthRate,
-  intX,
-  spacingX,
-  750,
-  "revS-digit",
-  displayedrevS,
-);
+// increases the score by a specified amount at regular intervals
+const tickLength = 1;
+let tickTimer = 0;
 
-requestAnimationFrame(frame);
+function frame(timestamp: number) {
+  if (lastUpdateTime !== null) {
+    const dt = Math.min((timestamp - lastUpdateTime) / 1000, 1 / 15); // limit dt to 1/15th of a second
+    tickTimer += dt;
+    while (tickTimer >= tickLength) {
+      incrementCounter(growthRate); // the whole amount, once per tick
+      tickTimer -= tickLength;
+    }
+  }
+
+  lastUpdateTime = timestamp;
+
+  displayWorkerInfo();
+  displayClickerPowerAndCost();
+  displayDynamicInfo();
+  requestAnimationFrame(frame);
+}
