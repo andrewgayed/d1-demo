@@ -9,174 +9,97 @@ heading.textContent = "D1 project";
 
 // variables
 let score: number = 0;
-let displayedScore: number = -1; // how much the score increases per click
 let growthRate: number = 0; // how much the score increases per click
 let lastUpdateTime: number | null = null; // timestamp of the last update
 let clickpower: number = 1; // how much the score increases per click
 
-let clickerLvl: number = 1; // current level of the clicker
-let worker1Lvl: number = 0; // current level of the first worker
+const workerBaseCosts: number[] = [10, 100, 3000, 10000, 25000]; // array to hold the base costs of each worker
+const workerGrowthRates: number[] = [1, 25, 1000, 5000, 15000]; // array to hold the growth rates of each worker
+const workerLevels: number[] = [0, 0, 0, 0, 0]; // array to hold the levels of each worker
 
-const startX = 140; // starting X coordinate of the grid
+const displayedScore: number = -1; // how much the score increases per click
+const displayedrevS: number = -1; // how much the score increases per click
 const spacingX = 36; // horizontal gap between buttons
+const intX = 240;
 
 // create the main button
 const button = document.getElementById("mainButton");
 button?.addEventListener("click", () => {
   console.log("Button clicked!");
   incrementCounter(clickpower);
-  displayScoreNumbers();
+  displayNumbers(score, intX + 90, spacingX, 60, "score-digit", displayedScore);
 });
 
 // create an upgrade button
 const upgradeButton = document.getElementById("upgradeClicker");
 upgradeButton?.addEventListener("click", () => {
-  const upgradeCost = Math.ceil(Math.pow(4, clickerLvl)); // cost increases with each level
+  const upgradeCost = Math.ceil(Math.pow(4, clickpower)); // cost increases with each level
   if (score >= upgradeCost) {
     console.log("Upgrade button clicked!");
+    console.log(`Upgrade cost: ${upgradeCost}`);
+    console.log(`Current score: ${clickpower}`);
     incrementClickPower(1); // increase click power by 1
     incrementCounter(-upgradeCost); // deduct the cost from the score
-    clickerLvl++; // increase the clicker level
-    displayScoreNumbers();
+    displayNumbers(
+      score,
+      intX,
+      spacingX,
+      60,
+      "score-digit",
+      displayedScore,
+    );
+    displayNumbers(
+      growthRate,
+      intX,
+      spacingX,
+      750,
+      "revS-digit",
+      displayedrevS,
+    );
   } else {
     console.log("Not enough score to upgrade!");
   }
 });
 
 // create an upgrade button for the first worker/passive income generator
-const purchaseWorkerButton = document.getElementById("upgradeWorker1");
-purchaseWorkerButton?.addEventListener("click", () => {
-  const upgradeCost = 10 * Math.ceil(Math.pow(1.2, worker1Lvl)); // cost increases with each level by 20%
-  if (score >= upgradeCost) {
-    console.log("Upgrade button clicked!");
-    incrementGrowthRate(1); // increase growth rate by 1
-    incrementCounter(-upgradeCost); // deduct the cost from the score
-    worker1Lvl++; // increase the clicker level
-    displayScoreNumbers();
-  } else {
-    console.log("Not enough score to upgrade!");
-  }
-});
-
-type NewUpgrade = {
-  name: string;
-  icon: string;
-  description: string;
-  baseCost: number;
-  growthAmount: number;
-  owned: number;
-  button?: HTMLButtonElement;
-};
-
-const newUpgrades: NewUpgrade[] = [
-  {
-    name: "Auto Generator",
-    icon: "⚡",
-    description: "+1 point per second",
-    baseCost: 20,
-    growthAmount: 1,
-    owned: 0,
-  },
-  {
-    name: "Power Factory",
-    icon: "🏭",
-    description: "+5 points per second",
-    baseCost: 100,
-    growthAmount: 5,
-    owned: 0,
-  },
-];
-
-function getNewUpgradeCost(upgrade: NewUpgrade): number {
-  return Math.ceil(upgrade.baseCost * Math.pow(1.5, upgrade.owned));
-}
-
-function buyNewUpgrade(upgrade: NewUpgrade): void {
-  const cost = getNewUpgradeCost(upgrade);
-
-  if (score < cost) {
-    return;
-  }
-
-  incrementCounter(-cost);
-  incrementGrowthRate(upgrade.growthAmount);
-  upgrade.owned++;
-
-  updateUpgradeShop();
-  displayScoreNumbers();
-}
-
-const upgradeShop = document.createElement("section");
-upgradeShop.className = "upgrade-shop";
-
-const shopTitle = document.createElement("h2");
-shopTitle.textContent = "Upgrade Shop";
-upgradeShop.appendChild(shopTitle);
-
-const productionInfo = document.createElement("p");
-upgradeShop.appendChild(productionInfo);
-
-for (const upgrade of newUpgrades) {
-  const upgradeButton = document.createElement("button");
-  upgradeButton.className = "shop-button";
-  upgradeButton.addEventListener("click", () => {
-    buyNewUpgrade(upgrade);
-  });
-
-  upgrade.button = upgradeButton;
-  upgradeShop.appendChild(upgradeButton);
-}
-
-document.body.appendChild(upgradeShop);
-
-function updateUpgradeShop(): void {
-  productionInfo.textContent = `Production: ${growthRate} points/sec`;
-
-  for (const upgrade of newUpgrades) {
-    if (!upgrade.button) {
-      continue;
+for (let i = 0; i < 5; i++) {
+  const purchaseWorkerButton = document.getElementById(`upgradeWorker${i + 1}`);
+  purchaseWorkerButton?.addEventListener("click", () => {
+    const upgradeCost = Math.ceil(
+      workerBaseCosts[i] * Math.pow(1.2, workerLevels[i]),
+    );
+    // cost increases with each level by 20%
+    if (score >= upgradeCost) {
+      console.log("Upgrade button clicked!");
+      incrementGrowthRate(workerGrowthRates[i]); // increase growth rate by the worker's base growth rate
+      incrementCounter(-upgradeCost); // deduct the cost from the score
+      displayNumbers(
+        score,
+        intX + 90,
+        spacingX,
+        60,
+        "score-digit",
+        displayedScore,
+      );
+      displayNumbers(
+        growthRate,
+        intX + 90,
+        spacingX,
+        750,
+        "revS-digit",
+        displayedrevS,
+      );
+      incrementWorkerLevel(i); // increase the clicker level
+      displayWorkerInfo();
+    } else {
+      console.log("Not enough score to upgrade!");
     }
-
-    const cost = getNewUpgradeCost(upgrade);
-    const affordable = score >= cost;
-
-    upgrade.button.disabled = !affordable;
-    upgrade.button.textContent =
-      `${upgrade.icon} ${upgrade.name} | Cost: ${cost} | ` +
-      `Owned: ${upgrade.owned} | ${upgrade.description}`;
-  }
+  });
 }
 
-updateUpgradeShop();
-
-const statsPanel = document.createElement("section");
-statsPanel.className = "stats-panel";
-
-const statsTitle = document.createElement("h2");
-statsTitle.textContent = "GAME STATS";
-statsPanel.appendChild(statsTitle);
-
-const statsInfo = document.createElement("div");
-statsPanel.appendChild(statsInfo);
-
-document.body.appendChild(statsPanel);
-
-function updateStats(): void {
-  const factory = newUpgrades.find(
-    (upgrade) => upgrade.name === "Power Factory",
-  );
-
-  statsInfo.textContent = `Points Per Click: ${clickpower}\n` +
-    `Points Per Second: ${growthRate}\n` +
-    `Clicker Level: ${clickerLvl}\n` +
-    `Workers Owned: ${worker1Lvl}\n` +
-    `Factories Owned: ${factory?.owned ?? 0}`;
-}
-
-updateStats();
-
-// intialize an array to hold the image URLs for the numbers 0-9
+// array to hold the image URLs for the numbers 0-9
 const numImgCol: string[] = [];
+
 for (let i = 0; i < 10; i++) {
   numImgCol.push(`/images/button${i}.png`);
 }
@@ -196,50 +119,30 @@ function incrementGrowthRate(increment: number) {
   growthRate += increment;
 }
 
-// converts the score to a string and displays each digit as an image
-function displayScoreNumbers() {
-  const whole = Math.floor(score);
-
-  // if the score has not changed since the last display do nothing
-  if (whole === displayedScore) {
-    return;
-  }
-
-  displayedScore = whole;
-
-  // remove all existing score digit images
-  document.querySelectorAll(".score-digit").forEach((el) => el.remove());
-
-  // parse the score into individual digits and display each digit as an image
-  const strScore: string = score.toString();
-
-  for (let index = 0; index < strScore.length; index++) {
-    const digitChar = strScore[index];
-    const digitNum = parseInt(digitChar, 10);
-
-    // properties for img which are 96 x 96 pixels
-    const img = document.createElement("img");
-    img.src = numImgCol[digitNum];
-    img.alt = `Digit ${digitChar}`;
-    img.className = "score-digit";
-    img.style.filter = "invert(1)";
-
-    img.style.position = "absolute";
-    img.style.left = `${startX + (index * spacingX)}px`;
-    img.style.top = `60px`;
-    img.style.width = "40px";
-
-    document.body.appendChild(img);
-  }
+function incrementWorkerLevel(workerIndex: number) {
+  workerLevels[workerIndex] += 1;
 }
+
+// converts the score to a string and displays each digit as an image
 
 function displayNumbers(
   num: number, // the number to display
   initX: number, // the initial X coordinate for the first digit
   gapX: number, // the horizontal gap between digits
-  initY: number,
-  groupName: string, // the initial Y coordinate for the digits
+  initY: number, // the initial Y coordinate for the digits
+  groupName: string,
+  displayedNum?: number, // whether the number is dynamic or static
 ) {
+  if (displayedNum !== undefined) {
+    const whole = Math.floor(num);
+
+    // if the score has not changed since the last display do nothing
+    if (whole === displayedNum) {
+      return;
+    }
+
+    displayedNum = whole;
+  }
   document.querySelectorAll(`.${groupName}`).forEach((el) => el.remove());
 
   // parse the score into individual digits and display each digit as an image
@@ -265,6 +168,19 @@ function displayNumbers(
   }
 }
 
+for (let i = 0; i < 5; i++) {
+  const plusImg = document.createElement("img");
+  plusImg.src = `/images/plus.png`;
+  plusImg.alt = "Plus";
+  plusImg.className = `plus${i + 1}`;
+  // plusImg.style.filter = "invert(1)";
+  plusImg.style.position = "absolute";
+  plusImg.style.left = `${intX - 235}px`; // right of the cost
+  plusImg.style.top = `${250 + (i * 100)}px`;
+  plusImg.style.width = "40px";
+  document.body.appendChild(plusImg);
+}
+
 // increases the score by a specified amount at regular intervals
 
 const tickLength = 1;
@@ -282,34 +198,78 @@ function frame(timestamp: number) {
   }
 
   lastUpdateTime = timestamp;
-  displayScoreNumbers();
-  updateUpgradeShop();
-  updateStats();
 
-  // display the level
-  displayNumbers(clickerLvl, 10, 36, 150, "clicker-level-digit");
-
+  displayNumbers(score, intX, spacingX, 60, "score-digit", displayedScore);
   displayNumbers(
-    Math.pow(4, clickerLvl),
-    320,
-    36,
-    150,
-    "clicker-cost-digit",
+    growthRate,
+    intX,
+    spacingX,
+    750,
+    "revS-digit",
+    displayedrevS,
   );
 
-  // Display worker level and upgrade cost
-  displayNumbers(worker1Lvl, 10, 36, 250, "worker-level-digit");
-
-  displayNumbers(
-    Math.ceil(10 * Math.pow(1.2, worker1Lvl)),
-    320,
-    36,
-    250,
-    "worker-cost-digit",
-  );
+  displayWorkerInfo();
+  displayClickerPowerAndCost();
 
   requestAnimationFrame(frame);
 }
 
-displayScoreNumbers();
+function displayClickerPowerAndCost() {
+  displayNumbers(
+    clickpower,
+    intX,
+    spacingX,
+    150,
+    "clicker-power-digit",
+  );
+
+  const upgradeCost = Math.ceil(Math.pow(4, clickpower));
+  displayNumbers(
+    upgradeCost,
+    intX + 260,
+    spacingX,
+    150,
+    "clicker-cost-digit",
+  );
+}
+
+function displayWorkerInfo() {
+  for (let i = 0; i < 5; i++) {
+    displayNumbers(
+      workerLevels[i],
+      intX,
+      spacingX,
+      250 + i * 100,
+      `worker${i + 1}-level-digit`,
+    );
+
+    displayNumbers(
+      Math.ceil(workerBaseCosts[i] * Math.pow(1.2, workerLevels[i])),
+      intX + 260,
+      spacingX,
+      250 + i * 100,
+      `worker${i + 1}-cost-digit`,
+    );
+
+    displayNumbers(
+      workerGrowthRates[i],
+      intX - 200,
+      spacingX,
+      250 + i * 100,
+      `worker${i + 1}-growth-digit`,
+    );
+  }
+}
+
+displayNumbers(score, intX, spacingX, 60, "score-digit", displayedScore);
+displayNumbers(
+  growthRate,
+  intX,
+  spacingX,
+  750,
+  "revS-digit",
+  displayedrevS,
+);
+
 requestAnimationFrame(frame);

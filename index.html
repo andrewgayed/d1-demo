@@ -19,90 +19,43 @@
 
     #upgradeClicker {
       position: absolute;
-      left: 120px;
+      left: 310px;
       top: 120px;
     }
 
+
     #upgradeWorker1 {
       position: absolute;
-      left: 120px;
+      left: 310px;
       top: 220px;
     }
 
+    #upgradeWorker2 {
+      position: absolute;
+      left: 310px;
+      top: 320px;
+    }
+
+    #upgradeWorker3 {
+      position: absolute;
+      left: 310px;
+      top: 420px;
+    }
+
+    #upgradeWorker4 {
+      position: absolute;
+      left: 310px;
+      top: 520px;
+    }
+
+    #upgradeWorker5 {
+      position: absolute;
+      left: 310px;
+      top: 620px;
+    }
     body {
       background-color: #000000;
       color: white;
-    }
-
-    .upgrade-shop {
-      position: absolute;
-      top: 260px;
-      left: 20px;
-      width: 360px;
-      padding: 20px;
-      background-color: #151515;
-      border: 2px solid #ffd700;
-      border-radius: 12px;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-
-    .upgrade-shop h2 {
-      color: #ffd700;
-      margin-top: 0;
-    }
-
-    .shop-button {
-      display: block;
-      width: 100%;
-      padding: 15px;
-      margin-top: 12px;
-      background-color: #292929;
-      color: white;
-      border: 2px solid #ffd700;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      text-align: left;
-    }
-
-    .shop-button:hover:not(:disabled) {
-      background-color: #484025;
-    }
-
-    .shop-button:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    .shop-button:active:not(:disabled) {
-      transform: scale(0.97);
-    }
-
-    .stats-panel {
-      position: absolute;
-      top: 260px;
-      left: 440px;
-      width: 260px;
-      padding: 20px;
-      background-color: #151515;
-      color: white;
-      border: 2px solid white;
-      border-radius: 12px;
-      font-family: Arial, sans-serif;
-    }
-
-    .stats-panel h2 {
-      margin-top: 0;
-      font-size: 20px;
-      border-bottom: 1px solid white;
-      padding-bottom: 10px;
-    }
-
-    .stats-panel div {
-      white-space: pre-line;
-      line-height: 2;
-      font-size: 15px;
     }
     </style>
   </head>
@@ -110,7 +63,7 @@
     <main id="app"></main>
     <script type="module" src="/src/main.ts"></script>
     <button id="mainButton" class="tile-button">
-      <img src="/src/assets/tile.svg" alt="tile" width="96" height="96" />
+      <img src="/images/disco.png" alt="tile" width="130" height="130" />
     </button>
     <button id="upgradeClicker" class="tile-button">
       <img src="/images/upgrade1.png" alt="upgrade clicker" width="182"
@@ -120,5 +73,26 @@
       <img src="/images/upgrade2.png" alt="upgrade clicker" width="182"
         height="96" />
     </button>
+    <button id="upgradeWorker2" class="tile-button">
+      <img src="/images/upgrade3.png" alt="upgrade clicker" width="182"
+        height="96" />
+    </button>
+    <button id="upgradeWorker3" class="tile-button">
+      <img src="/images/upgrade4.png" alt="upgrade clicker" width="182"
+        height="96" />
+    </button>
+    <button id="upgradeWorker4" class="tile-button">
+      <img src="/images/upgrade5.png" alt="upgrade clicker" width="182"
+        height="96" />
+    </button>
+    <button id="upgradeWorker5" class="tile-button">
+      <img src="/images/upgrade6.png" alt="upgrade clicker" width="182"
+        height="96" />
+    </button>
+
+    <img id="rev" src = "/images/rev.png" alt="rev" width="96" height="24"
+      style="position: absolute; left: 180px; top: 20px;" />
+    <img id="revS" src = "/images/revS.png" alt="rev" width="96" height="24"
+      style="position: absolute; left: 100px; top: 750px;" />
   </body>
 </html>
