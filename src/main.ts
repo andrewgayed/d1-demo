@@ -11,9 +11,20 @@ let growthRate: number = 0; // how much the score increases per click
 let lastUpdateTime: number | null = null; // timestamp of the last update
 let clickpower: number = 1; // how much the score increases per click
 
-const workerBaseCosts: number[] = [10, 100, 3000, 10000, 25000]; // array to hold the base costs of each worker
-const workerGrowthRates: number[] = [1, 25, 1000, 5000, 15000]; // array to hold the growth rates of each worker
-const workerLevels: number[] = [0, 0, 0, 0, 0]; // array to hold the levels of each worker
+interface WorkerConfig {
+  id: string;
+  baseCost: number;
+  growthRate: number;
+  level: number;
+}
+
+const workers: WorkerConfig[] = [
+  { id: "upgradeWorker1", baseCost: 10, growthRate: 1, level: 0 },
+  { id: "upgradeWorker2", baseCost: 100, growthRate: 25, level: 0 },
+  { id: "upgradeWorker3", baseCost: 3000, growthRate: 1000, level: 0 },
+  { id: "upgradeWorker4", baseCost: 10000, growthRate: 5000, level: 0 },
+  { id: "upgradeWorker5", baseCost: 25000, growthRate: 15000, level: 0 },
+];
 
 const displayedScore: number = -1; // how much the score increases per click
 const displayedrevS: number = -1; // how much the score increases per click
@@ -51,16 +62,16 @@ upgradeButton?.addEventListener("click", () => {
 });
 
 // create an upgrade button for the first worker/passive income generator
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < workers.length; i++) {
   const purchaseWorkerButton = document.getElementById(`upgradeWorker${i + 1}`);
   purchaseWorkerButton?.addEventListener("click", () => {
     const upgradeCost = Math.ceil(
-      workerBaseCosts[i] * Math.pow(1.2, workerLevels[i]),
+      workers[i].baseCost * Math.pow(1.2, workers[i].level),
     );
     // cost increases with each level by 20%
     if (score >= upgradeCost) {
       console.log("Upgrade button clicked!");
-      incrementGrowthRate(workerGrowthRates[i]); // increase growth rate by the worker's base growth rate
+      incrementGrowthRate(workers[i].growthRate); // increase growth rate by the worker's base growth rate
       incrementCounter(-upgradeCost); // deduct the cost from the score
       displayDynamicInfo();
       incrementWorkerLevel(i); // increase the clicker level
@@ -78,7 +89,7 @@ for (let i = 0; i < 10; i++) {
 }
 
 // create the plus signs for the growth rate display
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < workers.length; i++) {
   const plusImg = document.createElement("img");
   plusImg.src = `/images/plus.png`;
   plusImg.alt = "Plus";
@@ -110,7 +121,7 @@ function incrementGrowthRate(increment: number) {
 }
 
 function incrementWorkerLevel(workerIndex: number) {
-  workerLevels[workerIndex] += 1;
+  workers[workerIndex].level += 1;
 }
 
 // converts the score to a string and displays each digit as an image
@@ -188,23 +199,23 @@ function displayDynamicInfo() {
 
 // display worker growth increase, level and upgrade cost
 function displayWorkerInfo() {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < workers.length; i++) {
     displayNumbers(
-      workerLevels[i],
+      workers[i].level,
       intX,
       spacingX,
       250 + i * 100,
       `worker${i + 1}-level-digit`,
     );
     displayNumbers(
-      Math.ceil(workerBaseCosts[i] * Math.pow(1.2, workerLevels[i])),
+      Math.ceil(workers[i].baseCost * Math.pow(1.2, workers[i].level)),
       intX + 260,
       spacingX,
       250 + i * 100,
       `worker${i + 1}-cost-digit`,
     );
     displayNumbers(
-      workerGrowthRates[i],
+      workers[i].growthRate,
       intX - 200,
       spacingX,
       250 + i * 100,
